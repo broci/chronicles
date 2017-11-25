@@ -4,6 +4,15 @@ import (
 	css "github.com/broci/goss"
 )
 
+// button specific classes
+const (
+	FlatPrimary  = "flat-primary"
+	FlatAccent   = "flat-accent"
+	FlatContrast = "flat-contrast"
+	ColorInherit = "color-inherit"
+)
+
+// Style returns button specific css styles
 func Style() css.CSS {
 	return css.CSS{
 		"root": css.CSS{
@@ -31,6 +40,11 @@ func Style() css.CSS {
 			css.Display:        "inherit",
 			css.AlignItems:     "inherit",
 			css.JustifyContent: "inherit",
+		},
+		FlatPrimary: css.CSS{},
+		FlatAccent:  css.CSS{},
+		ColorInherit: css.CSS{
+			"color": "inherit",
 		},
 	}
 }
