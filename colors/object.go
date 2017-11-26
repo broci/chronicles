@@ -94,3 +94,10 @@ func (o Object) formatRGB() string {
 	b := strconv.FormatUint(uint64(o.B), 10)
 	return "rgb(" + r + "," + g + "," + b + ")"
 }
+
+func (o Object) Hex() string {
+	r := strconv.FormatUint(uint64(o.R), 16)
+	g := strconv.FormatUint(uint64(o.G), 16)
+	b := strconv.FormatUint(uint64(o.B), 16)
+	return "#" + r + g + b
+}

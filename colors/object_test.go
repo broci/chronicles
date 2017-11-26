@@ -12,9 +12,24 @@ func TestObject(t *testing.T) {
 	if g != e {
 		t.Errorf("expected %s got %s", e, g)
 	}
+	x := o.Hex()
+	if x != "#5f55f5" {
+		t.Errorf("expected #5f55f5 got %s", x)
+	}
 
 	o.IsRGBA = true
 	e = "rgba(95,85,245,1)"
+	g = o.String()
+	if g != e {
+		t.Errorf("expected %s got %s", e, g)
+	}
+
+	o, err = FromHex("#5f5")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	e = "rgb(85,255,85)"
 	g = o.String()
 	if g != e {
 		t.Errorf("expected %s got %s", e, g)
