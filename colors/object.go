@@ -2,7 +2,6 @@ package colors
 
 import "bytes"
 import "strconv"
-import "fmt"
 
 type Object struct {
 	R, G, B, A uint8
@@ -37,7 +36,6 @@ func FromHex(h string) (Object, error) {
 	if err != nil {
 		return Object{}, err
 	}
-	fmt.Printf("%s , %s , %sc\n", r, g, b)
 	return Object{R: uint8(rc), G: uint8(gc), B: uint8(bc)}, nil
 }
 
