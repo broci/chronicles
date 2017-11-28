@@ -30,6 +30,19 @@ const (
 	LightWhite      = "light-white"
 )
 
+// Contrast can either be dark or light.
+type Contrast string
+
+// contrast options
+const (
+	LightContrast Contrast = "light"
+	DarkContrast  Contrast = "dark"
+)
+
+func (c Contrast) Value() string {
+	return string(c)
+}
+
 // Color maps color palette.
 type Color map[string]string
 
@@ -118,8 +131,8 @@ func Brown() Color {
 }
 
 // Common color pallete.
-func Common() Color {
-	return Color{
+func Common() CommonColors {
+	return CommonColors{
 		Black:       "#000",
 		White:       "#fff",
 		Transparent: "rgba(0, 0, 0, 0)",
@@ -447,4 +460,19 @@ func Yellow() Color {
 		A700:            "#ffd600",
 		ContrastDefault: "dark",
 	}
+}
+
+// CommonColors common color pallete.
+type CommonColors struct {
+	Black       string
+	White       string
+	Transparent string
+	FullBlack   string
+	DarkBlack   string
+	LightBlack  string
+	MinBlack    string
+	FaintBlack  string
+	FullWhite   string
+	DarkWhite   string
+	LightWhite  string
 }
