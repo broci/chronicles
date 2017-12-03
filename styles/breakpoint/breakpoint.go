@@ -80,3 +80,18 @@ func Down(m Media, unit string) string {
 	v := strconv.FormatFloat(float64(m.Value())-0.05, 'f', 2, 64)
 	return "@media (max-width:" + v + unit + ")"
 }
+
+type Breakpoints interface {
+	Up(Media) string
+	Down(Media) string
+}
+
+type BP struct{}
+
+func (BP) Up(m Media) string {
+	return Up(m, "px")
+}
+
+func (BP) Down(m Media) string {
+	return Down(m, "px")
+}
