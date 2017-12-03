@@ -50,8 +50,8 @@ type Opts struct {
 	HTMLFontSize unit.Unit
 }
 
-func New(p *palette.Palette, opts ...Opts) *Typography {
-	t := &Typography{
+func New(p palette.Palette, opts ...Opts) Typography {
+	t := Typography{
 		FontFamily:        `"Roboto", "Helvetica", "Arial", sans-serif`,
 		FontSize:          14,
 		FontWeightLight:   300,

@@ -88,6 +88,9 @@ type Breakpoints interface {
 
 type BP struct{}
 
+func New() BP {
+	return BP{}
+}
 func (BP) Up(m Media) string {
 	return Up(m, "px")
 }

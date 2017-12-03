@@ -58,7 +58,7 @@ var shadows = [...][12]unit.Unit{
 	[12]unit.Unit{0, 11, 15, -7, 0, 24, 38, 3, 0, 9, 46, 8},
 }
 
-func Shadows() []string {
+func New() []string {
 	o := []string{"none"}
 	for _, v := range shadows {
 		o = append(o, CreateShadow(v))
