@@ -15,3 +15,7 @@ func New() *Registry {
 func (r *Registry) Register(name string, c component.Component) {
 	r.components[name] = c
 }
+
+func (r *Registry) Get(name string) component.Component {
+	return r.components[name]
+}

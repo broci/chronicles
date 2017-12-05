@@ -20,9 +20,9 @@ type UI struct {
 	root     *coreComponent
 }
 
-func New(tpl []byte) (*UI, error) {
+func New(tpl []byte, r *registry.Registry) (*UI, error) {
 	u := &UI{
-		Registry: registry.New(),
+		Registry: r,
 		State:    state.New(),
 	}
 	if err := u.Parse(tpl); err != nil {
@@ -48,7 +48,7 @@ func (u *UI) processTree(t *vdom.Tree) error {
 	if len(t.Children) != 1 {
 		return errors.New("There can only be one rootnode")
 	}
-	root, err := parse(t.Children[0])
+	root, err := parse(t.Children[0], u.Registry)
 	if err != nil {
 		return err
 	}
@@ -67,10 +67,14 @@ func (u *UI) HTML() (string, error) {
 
 var ErrNotRoot = errors.New("root node must be of type *vdom.Element")
 
-func parse(n vdom.Node) (*coreComponent, error) {
+func parse(n vdom.Node, r *registry.Registry) (*coreComponent, error) {
 	e, ok := n.(*vdom.Element)
 	if !ok {
 		return nil, ErrNotRoot
+	}
+	tplStr := string(e.HTML())
+	if c := r.Get(e.Name); c != nil {
+		tplStr = c.Template()
 	}
 	attrs := e.AttrMap()
 	props := make(map[string]interface{})
@@ -84,7 +88,7 @@ func parse(n vdom.Node) (*coreComponent, error) {
 		}
 	}
 	c := &coreComponent{
-		e:     e,
+		name:  e.Name,
 		props: props,
 		needs: needs,
 		id:    id.Next(),
@@ -92,7 +96,7 @@ func parse(n vdom.Node) (*coreComponent, error) {
 	ch := e.Children()
 	if len(ch) > 0 {
 		for _, child := range ch {
-			cp, err := parse(child)
+			cp, err := parse(child, r)
 			if err != nil {
 				if err == ErrNotRoot {
 					continue
@@ -100,10 +104,14 @@ func parse(n vdom.Node) (*coreComponent, error) {
 					return nil, err
 				}
 			}
+			if cmp := r.Get(cp.name); cmp != nil {
+				tplStr = strings.Replace(tplStr, string(child.HTML()), cmp.Template(), -1)
+			}
 			cp.parent = c
 			c.children = append(c.children, cp)
 		}
 	}
+	c.tplString = tplStr
 	return c, nil
 }
 
@@ -119,8 +127,9 @@ func needProp(p string) (string, bool) {
 }
 
 type coreComponent struct {
+	name         string
 	parent       *coreComponent
-	e            *vdom.Element
+	tplString    string
 	tpl          *template.Template
 	renderedHTML bytes.Buffer
 	props        map[string]interface{}
@@ -129,8 +138,8 @@ type coreComponent struct {
 	children     []*coreComponent
 }
 
-func (c *coreComponent) Template() []byte {
-	return c.e.HTML()
+func (c *coreComponent) Template() string {
+	return c.tplString
 }
 
 func (c *coreComponent) ID() int64 {
@@ -163,7 +172,7 @@ func (c *coreComponent) Render(s *state.State) error {
 		}
 	}
 	if c.tpl == nil {
-		tpl, err := template.New("component").Parse(string(c.e.HTML()))
+		tpl, err := template.New("component").Parse(c.tplString)
 		if err != nil {
 			return err
 		}
