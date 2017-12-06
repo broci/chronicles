@@ -7,10 +7,12 @@ import (
 	"github.com/broci/chronicles/ui/registry"
 )
 
-type todo struct{}
+type dummy struct {
+	tpl string
+}
 
-func (todo) Template() string {
-	return `<h2>hello, world</h2>`
+func (d dummy) Template() string {
+	return d.tpl
 }
 
 func TestUI_Parse(t *testing.T) {
@@ -29,7 +31,7 @@ func TestUI_Parse(t *testing.T) {
 				name string
 				cmp  component.Component
 			}{
-				{"todo", todo{}},
+				{"todo", dummy{tpl: `<h2>hello, world</h2>`}},
 			},
 			`<h2>hello, world</h2>`,
 			"Component only",
