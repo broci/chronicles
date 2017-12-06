@@ -58,11 +58,11 @@ func (u *UI) processTree(t *vdom.Tree) error {
 }
 
 func (u *UI) Render() error {
-	return u.root.Render(u.State)
+	return u.root.Render(u.State, u.Registry)
 }
 
 func (u *UI) HTML() (string, error) {
-	return u.root.HTML(u.State)
+	return u.root.HTML(u.State, u.Registry)
 }
 
 var ErrNotRoot = errors.New("root node must be of type *vdom.Element")
@@ -71,10 +71,6 @@ func parse(n vdom.Node, r *registry.Registry) (*coreComponent, error) {
 	e, ok := n.(*vdom.Element)
 	if !ok {
 		return nil, ErrNotRoot
-	}
-	tplStr := string(e.HTML())
-	if c := r.Get(e.Name); c != nil {
-		tplStr = c.Template()
 	}
 	attrs := e.AttrMap()
 	props := make(map[string]interface{})
@@ -88,6 +84,7 @@ func parse(n vdom.Node, r *registry.Registry) (*coreComponent, error) {
 		}
 	}
 	c := &coreComponent{
+		node:  n,
 		name:  e.Name,
 		props: props,
 		needs: needs,
@@ -104,14 +101,10 @@ func parse(n vdom.Node, r *registry.Registry) (*coreComponent, error) {
 					return nil, err
 				}
 			}
-			if cmp := r.Get(cp.name); cmp != nil {
-				tplStr = strings.Replace(tplStr, string(child.HTML()), cmp.Template(), -1)
-			}
 			cp.parent = c
 			c.children = append(c.children, cp)
 		}
 	}
-	c.tplString = tplStr
 	return c, nil
 }
 
@@ -128,6 +121,7 @@ func needProp(p string) (string, bool) {
 
 type coreComponent struct {
 	name         string
+	node         vdom.Node
 	parent       *coreComponent
 	tplString    string
 	tpl          *template.Template
@@ -154,7 +148,18 @@ func (c *coreComponent) NeedProps() map[string]string {
 	return c.needs
 }
 
-func (c *coreComponent) Render(s *state.State) error {
+func (c *coreComponent) Render(s *state.State, r *registry.Registry) error {
+	tplStr := string(c.node.HTML())
+	if c := r.Get(c.name); c != nil {
+		tplStr = c.Template()
+	}
+	for _, child := range c.children {
+		h, err := child.HTML(s, r)
+		if err != nil {
+			return err
+		}
+		tplStr = strings.Replace(tplStr, string(child.node.HTML()), h, 1)
+	}
 	ctx := make(map[string]interface{})
 	props := make(map[string]interface{})
 	if c.parent != nil {
@@ -171,13 +176,14 @@ func (c *coreComponent) Render(s *state.State) error {
 			props[k] = npp
 		}
 	}
-	if c.tpl == nil {
-		tpl, err := template.New("component").Parse(c.tplString)
-		if err != nil {
-			return err
-		}
-		c.tpl = tpl
+	for k, v := range c.props {
+		props[k] = v
 	}
+	tpl, err := template.New("component").Parse(tplStr)
+	if err != nil {
+		return err
+	}
+	c.tpl = tpl
 	ctx["props"] = props
 	c.renderedHTML.Reset()
 	return c.tpl.Execute(&c.renderedHTML, ctx)
@@ -187,8 +193,8 @@ func (c *coreComponent) getHTML() {
 
 }
 
-func (c *coreComponent) HTML(s *state.State) (string, error) {
-	if err := c.Render(s); err != nil {
+func (c *coreComponent) HTML(s *state.State, r *registry.Registry) (string, error) {
+	if err := c.Render(s, r); err != nil {
 		return "", err
 	}
 	return c.renderedHTML.String(), nil

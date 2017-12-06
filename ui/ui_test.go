@@ -36,6 +36,17 @@ func TestUI_Parse(t *testing.T) {
 			`<h2>hello, world</h2>`,
 			"Component only",
 		},
+		{
+			`<todo name="gernest"></todo>`,
+			[]struct {
+				name string
+				cmp  component.Component
+			}{
+				{"todo", dummy{tpl: `<h2>hello, world {{.props.name}}</h2>`}},
+			},
+			`<h2>hello, world gernest</h2>`,
+			"Component with props",
+		},
 	}
 
 	for _, s := range sample {
