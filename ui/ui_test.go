@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/broci/chronicles/ui/component"
-	"github.com/broci/chronicles/ui/registry"
 )
 
 type dummy struct {
@@ -51,7 +50,7 @@ func TestUI_Parse(t *testing.T) {
 
 	for _, s := range sample {
 		t.Run(s.desc, func(ts *testing.T) {
-			r := registry.New()
+			r := component.NewRegistry()
 			for _, c := range s.components {
 				r.Register(c.name, c.cmp)
 			}

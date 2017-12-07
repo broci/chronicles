@@ -9,18 +9,17 @@ import (
 	"github.com/albrow/vdom"
 	"github.com/broci/chronicles/id"
 	"github.com/broci/chronicles/ui/component"
-	"github.com/broci/chronicles/ui/registry"
 	"github.com/broci/chronicles/ui/state"
 )
 
 type UI struct {
-	Registry *registry.Registry
+	Registry *component.Registry
 	State    *state.State
 	Tree     *vdom.Tree
 	root     *coreComponent
 }
 
-func New(tpl []byte, r *registry.Registry) (*UI, error) {
+func New(tpl []byte, r *component.Registry) (*UI, error) {
 	u := &UI{
 		Registry: r,
 		State:    state.New(),
@@ -29,10 +28,6 @@ func New(tpl []byte, r *registry.Registry) (*UI, error) {
 		return nil, err
 	}
 	return u, nil
-}
-
-func (u *UI) Register(name string, c component.Component) {
-	u.Registry.Register(name, c)
 }
 
 func (u *UI) Parse(src []byte) error {
@@ -67,7 +62,7 @@ func (u *UI) HTML() (string, error) {
 
 var ErrNotRoot = errors.New("root node must be of type *vdom.Element")
 
-func parse(n vdom.Node, r *registry.Registry) (*coreComponent, error) {
+func parse(n vdom.Node, r *component.Registry) (*coreComponent, error) {
 	e, ok := n.(*vdom.Element)
 	if !ok {
 		return nil, ErrNotRoot
@@ -148,7 +143,7 @@ func (c *coreComponent) NeedProps() map[string]string {
 	return c.needs
 }
 
-func (c *coreComponent) Render(s *state.State, r *registry.Registry) error {
+func (c *coreComponent) Render(s *state.State, r *component.Registry) error {
 	tplStr := string(c.node.HTML())
 	if c := r.Get(c.name); c != nil {
 		tplStr = c.Template()
@@ -193,7 +188,7 @@ func (c *coreComponent) getHTML() {
 
 }
 
-func (c *coreComponent) HTML(s *state.State, r *registry.Registry) (string, error) {
+func (c *coreComponent) HTML(s *state.State, r *component.Registry) (string, error) {
 	if err := c.Render(s, r); err != nil {
 		return "", err
 	}
