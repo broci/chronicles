@@ -50,11 +50,12 @@ func TestUI_Parse(t *testing.T) {
 
 	for _, s := range sample {
 		t.Run(s.desc, func(ts *testing.T) {
-			r := component.NewRegistry()
+			ctx := component.NewCtx()
 			for _, c := range s.components {
-				r.Register(c.name, c.cmp)
+				ctx.Registry.Register(c.name, c.cmp)
 			}
-			u, err := New([]byte(s.src), r)
+
+			u, err := New([]byte(s.src), ctx)
 			if err != nil {
 				ts.Fatal(err)
 			}

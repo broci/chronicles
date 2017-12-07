@@ -11,21 +11,18 @@ import (
 	"github.com/albrow/vdom"
 	"github.com/broci/chronicles/id"
 	"github.com/broci/chronicles/ui/component"
-	"github.com/broci/chronicles/ui/state"
 )
 
 type UI struct {
-	Registry *component.Registry
-	State    *state.State
-	Tree     *vdom.Tree
-	root     *coreComponent
-	el       dom.Element
+	Ctx  *component.Context
+	Tree *vdom.Tree
+	root *coreComponent
+	el   dom.Element
 }
 
-func New(tpl []byte, r *component.Registry) (*UI, error) {
+func New(tpl []byte, ctx *component.Context) (*UI, error) {
 	u := &UI{
-		Registry: r,
-		State:    state.New(),
+		Ctx: ctx,
 	}
 	if err := u.Parse(tpl); err != nil {
 		return nil, err
@@ -46,7 +43,7 @@ func (u *UI) processTree(t *vdom.Tree) error {
 	if len(t.Children) != 1 {
 		return errors.New("There can only be one rootnode")
 	}
-	root, err := parse(t.Children[0], u.Registry)
+	root, err := parse(t.Children[0], u.Ctx)
 	if err != nil {
 		return err
 	}
@@ -56,20 +53,20 @@ func (u *UI) processTree(t *vdom.Tree) error {
 }
 
 func (u *UI) Render() error {
-	return u.root.Render(u.State, u.Registry)
+	return u.root.Render(u.Ctx)
 }
 
 func (u *UI) HTML() (string, error) {
-	return u.root.HTML(u.State, u.Registry)
+	return u.root.HTML(u.Ctx)
 }
 
 func (u *UI) Mount(node dom.Element) error {
-	return u.root.Mount(u.State, u.Registry, node)
+	return u.root.Mount(u.Ctx)
 }
 
 var ErrNotRoot = errors.New("root node must be of type *vdom.Element")
 
-func parse(n vdom.Node, r *component.Registry) (*coreComponent, error) {
+func parse(n vdom.Node, ctx *component.Context) (*coreComponent, error) {
 	e, ok := n.(*vdom.Element)
 	if !ok {
 		return nil, ErrNotRoot
@@ -95,7 +92,7 @@ func parse(n vdom.Node, r *component.Registry) (*coreComponent, error) {
 	ch := e.Children()
 	if len(ch) > 0 {
 		for _, child := range ch {
-			cp, err := parse(child, r)
+			cp, err := parse(child, ctx)
 			if err != nil {
 				if err == ErrNotRoot {
 					continue
@@ -151,8 +148,8 @@ func (c *coreComponent) NeedProps() map[string]string {
 	return c.needs
 }
 
-func (c *coreComponent) Mount(s *state.State, r *component.Registry, el dom.Element) error {
-	h, err := c.HTML(s, r)
+func (c *coreComponent) Mount(ctx *component.Context) error {
+	h, err := c.HTML(ctx)
 	if err != nil {
 		return err
 	}
@@ -164,7 +161,7 @@ func (c *coreComponent) Mount(s *state.State, r *component.Registry, el dom.Elem
 	if err != nil {
 		return err
 	}
-	err = patch.Patch(el)
+	err = patch.Patch(ctx.Element)
 	if err != nil {
 		return err
 	}
@@ -172,13 +169,13 @@ func (c *coreComponent) Mount(s *state.State, r *component.Registry, el dom.Elem
 	return nil
 }
 
-func (c *coreComponent) Render(s *state.State, r *component.Registry) error {
+func (c *coreComponent) Render(rctx *component.Context) error {
 	tplStr := string(c.node.HTML())
-	if c := r.Get(c.name); c != nil {
+	if c := rctx.Registry.Get(c.name); c != nil {
 		tplStr = c.Template()
 	}
 	for _, child := range c.children {
-		h, err := child.HTML(s, r)
+		h, err := child.HTML(rctx)
 		if err != nil {
 			return err
 		}
@@ -193,7 +190,7 @@ func (c *coreComponent) Render(s *state.State, r *component.Registry) error {
 	}
 	for k, v := range c.needs {
 		if _, ok := props[v]; !ok {
-			npp, ok := s.Get(v)
+			npp, ok := rctx.State.Get(v)
 			if !ok {
 				return errors.New("can't find prop " + k)
 			}
@@ -222,8 +219,8 @@ func (c *coreComponent) Render(s *state.State, r *component.Registry) error {
 	return nil
 }
 
-func (c *coreComponent) HTML(s *state.State, r *component.Registry) (string, error) {
-	if err := c.Render(s, r); err != nil {
+func (c *coreComponent) HTML(ctx *component.Context) (string, error) {
+	if err := c.Render(ctx); err != nil {
 		return "", err
 	}
 	return c.renderedHTML.String(), nil
