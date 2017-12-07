@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"strings"
 
+	"honnef.co/go/js/dom"
+
 	"github.com/albrow/vdom"
 	"github.com/broci/chronicles/id"
 	"github.com/broci/chronicles/ui/component"
@@ -17,6 +19,7 @@ type UI struct {
 	State    *state.State
 	Tree     *vdom.Tree
 	root     *coreComponent
+	el       dom.Element
 }
 
 func New(tpl []byte, r *component.Registry) (*UI, error) {
@@ -58,6 +61,10 @@ func (u *UI) Render() error {
 
 func (u *UI) HTML() (string, error) {
 	return u.root.HTML(u.State, u.Registry)
+}
+
+func (u *UI) Mount(node dom.Element) error {
+	return u.root.Mount(u.State, u.Registry, node)
 }
 
 var ErrNotRoot = errors.New("root node must be of type *vdom.Element")
@@ -117,6 +124,7 @@ func needProp(p string) (string, bool) {
 type coreComponent struct {
 	name         string
 	node         vdom.Node
+	tree         *vdom.Tree
 	parent       *coreComponent
 	tplString    string
 	tpl          *template.Template
@@ -141,6 +149,27 @@ func (c *coreComponent) Props() map[string]interface{} {
 
 func (c *coreComponent) NeedProps() map[string]string {
 	return c.needs
+}
+
+func (c *coreComponent) Mount(s *state.State, r *component.Registry, el dom.Element) error {
+	h, err := c.HTML(s, r)
+	if err != nil {
+		return err
+	}
+	n, err := vdom.Parse([]byte(h))
+	if err != nil {
+		return err
+	}
+	patch, err := vdom.Diff(c.tree, n)
+	if err != nil {
+		return err
+	}
+	err = patch.Patch(el)
+	if err != nil {
+		return err
+	}
+	c.tree = n
+	return nil
 }
 
 func (c *coreComponent) Render(s *state.State, r *component.Registry) error {
@@ -181,11 +210,16 @@ func (c *coreComponent) Render(s *state.State, r *component.Registry) error {
 	c.tpl = tpl
 	ctx["props"] = props
 	c.renderedHTML.Reset()
-	return c.tpl.Execute(&c.renderedHTML, ctx)
-}
-
-func (c *coreComponent) getHTML() {
-
+	err = c.tpl.Execute(&c.renderedHTML, ctx)
+	if err != nil {
+		return err
+	}
+	newTree, err := vdom.Parse(c.renderedHTML.Bytes())
+	if err != nil {
+		return err
+	}
+	c.tree = newTree
+	return nil
 }
 
 func (c *coreComponent) HTML(s *state.State, r *component.Registry) (string, error) {
