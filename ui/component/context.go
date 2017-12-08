@@ -7,6 +7,7 @@ import (
 
 type Context struct {
 	Mount       bool
+	Document    dom.Document
 	RootElement dom.Element
 	Element     dom.Element
 	State       *state.State
