@@ -6,23 +6,28 @@ import (
 	"html/template"
 	"strings"
 
+	"github.com/broci/goss"
+
 	"honnef.co/go/js/dom"
 
 	"github.com/albrow/vdom"
 	"github.com/broci/chronicles/id"
 	"github.com/broci/chronicles/ui/component"
+	"github.com/broci/chronicles/ui/funcs"
 )
 
 type UI struct {
-	Ctx  *component.Context
-	Tree *vdom.Tree
-	root *coreComponent
-	el   dom.Element
+	Ctx        *component.Context
+	Tree       *vdom.Tree
+	root       *coreComponent
+	el         dom.Element
+	stylesheet *goss.StyleSheet
 }
 
 func New(tpl []byte, ctx *component.Context) (*UI, error) {
 	u := &UI{
-		Ctx: ctx,
+		Ctx:        ctx,
+		stylesheet: &goss.StyleSheet{},
 	}
 	if err := u.Parse(tpl); err != nil {
 		return nil, err
@@ -60,10 +65,6 @@ func (u *UI) HTML() (string, error) {
 	return u.root.HTML(u.Ctx)
 }
 
-func (u *UI) Mount(node dom.Element) error {
-	return u.root.Mount(u.Ctx)
-}
-
 var ErrNotRoot = errors.New("root node must be of type *vdom.Element")
 
 func parse(n vdom.Node, ctx *component.Context) (*coreComponent, error) {
@@ -88,6 +89,7 @@ func parse(n vdom.Node, ctx *component.Context) (*coreComponent, error) {
 		props: props,
 		needs: needs,
 		id:    id.Next(),
+		sheet: ctx.StyleSheet.NewSheet(),
 	}
 	ch := e.Children()
 	if len(ch) > 0 {
@@ -121,7 +123,6 @@ func needProp(p string) (string, bool) {
 type coreComponent struct {
 	name         string
 	node         vdom.Node
-	tree         *vdom.Tree
 	parent       *coreComponent
 	tplString    string
 	tpl          *template.Template
@@ -129,6 +130,7 @@ type coreComponent struct {
 	props        map[string]interface{}
 	id           int64
 	needs        map[string]string
+	sheet        *goss.Sheet
 	children     []*coreComponent
 }
 
@@ -146,27 +148,6 @@ func (c *coreComponent) Props() map[string]interface{} {
 
 func (c *coreComponent) NeedProps() map[string]string {
 	return c.needs
-}
-
-func (c *coreComponent) Mount(ctx *component.Context) error {
-	h, err := c.HTML(ctx)
-	if err != nil {
-		return err
-	}
-	n, err := vdom.Parse([]byte(h))
-	if err != nil {
-		return err
-	}
-	patch, err := vdom.Diff(c.tree, n)
-	if err != nil {
-		return err
-	}
-	err = patch.Patch(ctx.Element)
-	if err != nil {
-		return err
-	}
-	c.tree = n
-	return nil
 }
 
 func (c *coreComponent) Render(rctx *component.Context) error {
@@ -200,7 +181,8 @@ func (c *coreComponent) Render(rctx *component.Context) error {
 	for k, v := range c.props {
 		props[k] = v
 	}
-	tpl, err := template.New("component").Parse(tplStr)
+	ctx["classes"] = c.sheet.Class
+	tpl, err := template.New("component").Funcs(funcs.New()).Parse(tplStr)
 	if err != nil {
 		return err
 	}
@@ -211,12 +193,18 @@ func (c *coreComponent) Render(rctx *component.Context) error {
 	if err != nil {
 		return err
 	}
-	newTree, err := vdom.Parse(c.renderedHTML.Bytes())
-	if err != nil {
-		return err
-	}
-	c.tree = newTree
 	return nil
+}
+
+func newComponentNode(src []byte) (vdom.Node, error) {
+	t, err := vdom.Parse(src)
+	if err != nil {
+		return nil, err
+	}
+	if len(t.Children) != 1 {
+		return nil, errors.New("More than one conainer element")
+	}
+	return t.Children[0], nil
 }
 
 func (c *coreComponent) HTML(ctx *component.Context) (string, error) {
