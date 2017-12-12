@@ -3,13 +3,16 @@ package core
 import (
 	"bytes"
 	"errors"
+	"html/template"
 	"io"
+	"strings"
 
 	"honnef.co/go/js/dom"
 
 	"github.com/albrow/vdom"
 	"github.com/broci/chronicles/id"
 	"github.com/broci/chronicles/ui/component"
+	"github.com/broci/chronicles/ui/funcs"
 	"github.com/broci/goss"
 )
 
@@ -27,9 +30,22 @@ const (
 	// Text is a container for html text nodes i.e anything not in tags.
 	Text
 
-	//Elelent is container for html elements i.e anything in tags.
+	//Element is container for html elements i.e anything in tags.
 	Element
 )
+
+func (k Kind) String() string {
+	switch k {
+	case Comment:
+		return "COMMENT"
+	case Text:
+		return "TEXT"
+	case Element:
+		return "ELEMENT"
+	default:
+		return ""
+	}
+}
 
 // Container represents the parsed html node.
 type Container struct {
@@ -65,7 +81,7 @@ type Container struct {
 	//
 	// They will be searched from parent first, if missing then they will be
 	// searched from the global state.
-	Needs component.Props
+	Needs map[string]string
 
 	// Sheet is the container style. It will be passed to the template when
 	// rendering.
@@ -99,6 +115,7 @@ func Parse(src []byte) (*List, error) {
 	return l, nil
 }
 
+// ContainerFromNode creates a container out of the node e.
 func ContainerFromNode(e vdom.Node) (*Container, error) {
 	c := &Container{
 		Node: e,
@@ -108,7 +125,7 @@ func ContainerFromNode(e vdom.Node) (*Container, error) {
 	case *vdom.Element:
 		c.Kind = Element
 		props := make(component.Props)
-		needs := make(component.Props)
+		needs := make(map[string]string)
 		for k, v := range v.AttrMap() {
 			p, ok := component.NeedProp(v)
 			if ok {
@@ -119,6 +136,7 @@ func ContainerFromNode(e vdom.Node) (*Container, error) {
 		}
 		c.Props = props
 		c.Needs = needs
+		c.Name = v.Name
 		for _, child := range v.Children() {
 			ch, err := ContainerFromNode(child)
 			if err != nil {
@@ -138,10 +156,56 @@ func ContainerFromNode(e vdom.Node) (*Container, error) {
 	return c, nil
 }
 
-func (c *Container) RenderTo(out io.Writer) (int64, error) {
+func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, error) {
 	switch c.Kind {
 	case Text, Comment:
 		return c.HTML.WriteTo(out)
+	case Element:
+		tplStr := string(c.Node.HTML())
+		if c := ctx.Registry.Get(c.Name); c != nil {
+			tplStr = c.Template()
+		}
+		var buf bytes.Buffer
+		for _, child := range c.Children {
+			buf.Reset()
+			_, err := child.RenderTo(&buf, ctx)
+			if err != nil {
+				return 0, err
+			}
+			tplStr = strings.Replace(tplStr, string(child.Node.HTML()), buf.String(), 1)
+		}
+		props := make(map[string]interface{})
+		if c.Parent != nil {
+			for k, p := range c.Parent.Props {
+				props[k] = p
+			}
+		}
+		for k, v := range c.Needs {
+			if _, ok := props[v]; !ok {
+				npp, ok := ctx.State.Get(v)
+				if !ok {
+					return 0, errors.New("can't find prop " + k)
+				}
+				props[k] = npp
+			}
+		}
+		props["parent"] = c.Props
+		props["classes"] = c.Sheet.Class
+		tpl, err := template.New("component").Funcs(funcs.New()).Parse(tplStr)
+		if err != nil {
+			return 0, err
+		}
+		c.HTML.Reset()
+		err = tpl.Execute(&c.HTML, props)
+		if err != nil {
+			return 0, err
+		}
+		t, err := vdom.Parse(c.HTML.Bytes())
+		if err != nil {
+			return 0, err
+		}
+		c.RenderedNode = t.Children[0]
+		return int64(c.HTML.Len()), nil
 	default:
 		return 0, ErrUnkownNode
 	}
