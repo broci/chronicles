@@ -6,6 +6,14 @@ type Component interface {
 	Template() string
 }
 
+type HasProps interface {
+	Props() Props
+}
+
+type NeedsProps interface {
+	NeedsProps() []string
+}
+
 type Identity interface {
 	ID() string
 }
@@ -17,8 +25,17 @@ func NeedProp(p string) (string, bool) {
 	if p == "" {
 		return p, false
 	}
-	if p[0] == '{' && p[len(p)-1] == '}' {
-		return p[1 : len(p)-2], true
+	i := strings.Index(p, "{{")
+	if i != -1 {
+		e := strings.Index(p, "}}")
+		if e != -1 {
+			txt := p[i:e]
+			txt = strings.TrimSpace(txt)
+			if !strings.HasPrefix(txt, ".") {
+				return "", false
+			}
+			return txt[1:], true
+		}
 	}
 	return p, false
 }

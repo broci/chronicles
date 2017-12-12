@@ -32,6 +32,9 @@ const (
 
 	//Element is container for html elements i.e anything in tags.
 	Element
+
+	// Component is any non standard html tag.
+	Component
 )
 
 func (k Kind) String() string {
@@ -81,7 +84,7 @@ type Container struct {
 	//
 	// They will be searched from parent first, if missing then they will be
 	// searched from the global state.
-	Needs map[string]string
+	Needs []string
 
 	// Sheet is the container style. It will be passed to the template when
 	// rendering.
@@ -125,11 +128,11 @@ func ContainerFromNode(e vdom.Node) (*Container, error) {
 	case *vdom.Element:
 		c.Kind = Element
 		props := make(component.Props)
-		needs := make(map[string]string)
+		needs := []string{}
 		for k, v := range v.AttrMap() {
 			p, ok := component.NeedProp(v)
 			if ok {
-				needs[k] = p
+				needs = append(needs, p)
 			} else {
 				props[k] = p
 			}
@@ -143,6 +146,11 @@ func ContainerFromNode(e vdom.Node) (*Container, error) {
 				return nil, err
 			}
 			c.Children = append(c.Children, ch)
+		}
+
+		// anything other than standard html tags is a component.
+		if !goss.IsHTMLTAG(c.Name) {
+			c.Kind = Component
 		}
 	case *vdom.Text:
 		c.Kind = Text
@@ -180,13 +188,13 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 				props[k] = p
 			}
 		}
-		for k, v := range c.Needs {
+		for _, v := range c.Needs {
 			if _, ok := props[v]; !ok {
 				npp, ok := ctx.State.Get(v)
 				if !ok {
-					return 0, errors.New("can't find prop " + k)
+					return 0, errors.New("can't find prop " + v)
 				}
-				props[k] = npp
+				props[v] = npp
 			}
 		}
 		props["parent"] = c.Props
