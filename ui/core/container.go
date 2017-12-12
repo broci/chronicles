@@ -102,6 +102,7 @@ type List struct {
 	Childrens []*Container
 }
 
+// Parse takes src as HTML and returns the container list.
 func Parse(src []byte) (*List, error) {
 	t, err := vdom.Parse(src)
 	if err != nil {
@@ -164,6 +165,7 @@ func ContainerFromNode(e vdom.Node) (*Container, error) {
 	return c, nil
 }
 
+// RenderTo will generate HTML and render it to out using the given context ctx.
 func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, error) {
 	switch c.Kind {
 	case Text, Comment:
