@@ -241,3 +241,7 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 		return 0, ErrUnkownNode
 	}
 }
+
+func (c *Container) Mount(ctx *component.Context) error {
+	return nil
+}
