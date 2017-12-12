@@ -168,11 +168,32 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 	switch c.Kind {
 	case Text, Comment:
 		return c.HTML.WriteTo(out)
-	case Element:
+	case Element, Component:
 		tplStr := string(c.Node.HTML())
-		if c := ctx.Registry.Get(c.Name); c != nil {
-			tplStr = c.Template()
+		var needs []string
+		props := make(component.Props)
+		if c.Parent != nil {
+			for k, p := range c.Parent.Props {
+				props[k] = p
+			}
 		}
+		if c.Kind == Component {
+			if cmp := ctx.Registry.Get(c.Name); cmp != nil {
+				tplStr = cmp.Template()
+
+				if cp, ok := cmp.(component.HasProps); ok {
+					for k, v := range cp.Props() {
+						props[k] = v
+					}
+				}
+				if cp, ok := cmp.(component.NeedsProps); ok {
+					for _, v := range cp.NeedsProps() {
+						needs = append(needs, v)
+					}
+				}
+			}
+		}
+
 		var buf bytes.Buffer
 		for _, child := range c.Children {
 			buf.Reset()
@@ -182,13 +203,13 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 			}
 			tplStr = strings.Replace(tplStr, string(child.Node.HTML()), buf.String(), 1)
 		}
-		props := make(map[string]interface{})
 		if c.Parent != nil {
 			for k, p := range c.Parent.Props {
 				props[k] = p
 			}
 		}
-		for _, v := range c.Needs {
+		needs = append(needs, c.Needs...)
+		for _, v := range needs {
 			if _, ok := props[v]; !ok {
 				npp, ok := ctx.State.Get(v)
 				if !ok {
