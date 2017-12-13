@@ -189,6 +189,7 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 				return 0, fmt.Errorf("Unknownn component %s", c.Name)
 			}
 			cmp = cmp.Init(ctx)
+			c.Component = cmp
 			tplStr = cmp.Template()
 			if cp, ok := cmp.(component.HasProps); ok {
 				for k, v := range cp.Props() {
