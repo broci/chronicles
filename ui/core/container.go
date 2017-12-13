@@ -3,6 +3,7 @@ package core
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"strings"
@@ -91,9 +92,9 @@ type Container struct {
 	Sheet *goss.Sheet
 
 	// Element is the actual dom element that is atached to this container.
-	Element dom.Element
-
-	Children []*Container
+	Element   dom.Element
+	Component component.Component
+	Children  []*Container
 }
 
 // List is a group of containers.
@@ -171,7 +172,11 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 	case Text, Comment:
 		return c.HTML.WriteTo(out)
 	case Element, Component:
-		tplStr := string(c.Node.HTML())
+		cpt := ctx.Registry.Get(c.Name)
+		if cpt == nil {
+			return 0, fmt.Errorf("Unknownn component %s", c.Name)
+		}
+		tplStr := cpt.Template()
 		var needs []string
 		props := make(component.Props)
 		if c.Parent != nil {
@@ -220,7 +225,7 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 				props[v] = npp
 			}
 		}
-		props["parent"] = c.Props
+		props = component.MergeProps(props, c.Props)
 		if c.Sheet != nil {
 			props["classes"] = c.Sheet.Class
 		}

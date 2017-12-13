@@ -24,6 +24,12 @@ func New(src interface{}, ctx *component.Context) (*UI, error) {
 	case *core.Container:
 		u.Root = v
 		return u, nil
+	case component.Component:
+		u.Root = &core.Container{
+			Kind:      core.Component,
+			Component: v,
+		}
+		return u, nil
 	case []byte:
 		l, err := core.Parse(v)
 		if err != nil {
@@ -55,4 +61,12 @@ func (u *UI) Mount() error {
 		return err
 	}
 	return u.Root.Mount(u.Ctx)
+}
+
+func (u *UI) Render() (string, error) {
+	_, err := u.Root.RenderTo(abys{}, u.Ctx)
+	if err != nil {
+		return "", err
+	}
+	return u.Root.HTML.String(), nil
 }

@@ -1,9 +1,11 @@
 package component
 
 import "strings"
+import "honnef.co/go/js/dom"
 
 type Component interface {
 	Template() string
+	Init() Component
 }
 
 type HasProps interface {
@@ -12,6 +14,10 @@ type HasProps interface {
 
 type NeedsProps interface {
 	NeedsProps() []string
+}
+
+type CanListen interface {
+	ListenTo() EventListers
 }
 
 type Identity interface {
@@ -38,4 +44,16 @@ func NeedProp(p string) (string, bool) {
 		}
 	}
 	return p, false
+}
+
+type EventListers map[string]func(dom.Event)
+
+func MergeProps(props ...Props) Props {
+	p := make(Props)
+	for _, pp := range props {
+		for k, v := range pp {
+			p[k] = v
+		}
+	}
+	return p
 }

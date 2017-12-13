@@ -10,6 +10,10 @@ type dummy struct {
 	tpl string
 }
 
+func (d dummy) Init() component.Component {
+	return d
+}
+
 func (d dummy) Template() string {
 	return d.tpl
 }
@@ -41,7 +45,7 @@ func TestUI_Parse(t *testing.T) {
 				name string
 				cmp  component.Component
 			}{
-				{"todo", dummy{tpl: `<h2>hello, world {{.props.name}}</h2>`}},
+				{"todo", dummy{tpl: `<h2>hello, world {{.name}}</h2>`}},
 			},
 			`<h2>hello, world gernest</h2>`,
 			"Component with props",
@@ -59,7 +63,7 @@ func TestUI_Parse(t *testing.T) {
 			if err != nil {
 				ts.Fatal(err)
 			}
-			g, err := u.HTML()
+			g, err := u.Render()
 			if err != nil {
 				ts.Fatal(err)
 			}
