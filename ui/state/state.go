@@ -65,7 +65,8 @@ func (s *State) GetOk(key interface{}) (interface{}, bool) {
 	return s.m.Load(key)
 }
 
-// Listen register f as a callback which will be called whenever value associated with key changes.
+// Listen register f as a callback which will be called whenever value
+// associated with key changes.
 func (s *State) Listen(key interface{}, f Listerner) {
 	if ls, ok := s.listeners[key]; ok {
 		ls = append(ls, f)
