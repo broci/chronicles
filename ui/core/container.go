@@ -98,7 +98,10 @@ type Container struct {
 	Component component.Component
 	Children  []*Container
 
+	// State stores local state.
 	State *state.State
+
+	StateChanged chan *Container
 }
 
 // List is a group of containers.
@@ -153,6 +156,7 @@ func ContainerFromNode(e vdom.Node) (*Container, error) {
 			}
 			c.Children = append(c.Children, ch)
 		}
+		c.State = state.New()
 
 		// anything other than standard html tags is a component.
 		if !goss.IsHTMLTAG(c.Name) {
@@ -168,6 +172,16 @@ func ContainerFromNode(e vdom.Node) (*Container, error) {
 		return nil, ErrUnkownNode
 	}
 	return c, nil
+}
+
+// WatchState monitors state and notifies rendering engine about componet which
+// has its local state changed.
+func (c *Container) WatchState(ops state.Op, key interface{}, s *state.State) {
+	if c.StateChanged != nil {
+		go func() {
+			c.StateChanged <- c
+		}()
+	}
 }
 
 // RenderTo will generate HTML and render it to out using the given context ctx.
@@ -268,5 +282,10 @@ func (c *Container) Mount(ctx *component.Context) error {
 			m.ComponentDidMount(ctx)
 		}
 	}
+	return nil
+}
+
+// Rerender use virtual dom to update the dom and calls lifecycle hooks.
+func (c *Container) Rerender(ctx *component.Context) error {
 	return nil
 }

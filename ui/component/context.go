@@ -11,9 +11,17 @@ type Context struct {
 	Document    dom.Document
 	RootElement dom.Element
 	Element     dom.Element
-	State       *state.State
-	Registry    *Registry
-	StyleSheet  *goss.StyleSheet
+
+	// State is the global state.
+	State *state.State
+
+	// LocalState is the state that only works inside the component boundary.This
+	// is not passed to child components, as state is private to each component.
+	//
+	//If you want values to be accesible to anyone use State field.
+	LocalState *state.State
+	Registry   *Registry
+	StyleSheet *goss.StyleSheet
 }
 
 func NewCtx() *Context {

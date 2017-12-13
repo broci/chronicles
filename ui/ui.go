@@ -13,13 +13,28 @@ func (abys) Write(p []byte) (int, error) {
 	return 0, nil
 }
 
+// UI central user interface rendering implementation. This follows a mix of
+// ideas from many fronend libraries,
+// mostly react and vue.
 type UI struct {
-	Ctx  *component.Context
-	Root *core.Container
+	Ctx               *component.Context
+	Root              *core.Container
+	changedContainers chan *core.Container
+	initialized       bool
 }
 
+// New initializes and returns a new *UI object from src.
+//
+//Src can be one of,
+//	*core.Container
+//	component.Component
+//	[]bute
+//	string
 func New(src interface{}, ctx *component.Context) (*UI, error) {
-	u := &UI{Ctx: ctx}
+	u := &UI{
+		Ctx:               ctx,
+		changedContainers: make(chan *core.Container, 1000),
+	}
 	switch v := src.(type) {
 	case *core.Container:
 		u.Root = v
@@ -55,7 +70,10 @@ func New(src interface{}, ctx *component.Context) (*UI, error) {
 	}
 }
 
+// Mount this starts UI rendering logic and mounts the components.This only need
+// to be called once, any subsequent calls have no effect.
 func (u *UI) Mount() error {
+	u.Init()
 	_, err := u.Root.RenderTo(abys{}, u.Ctx)
 	if err != nil {
 		return err
@@ -63,10 +81,27 @@ func (u *UI) Mount() error {
 	return u.Root.Mount(u.Ctx)
 }
 
+// Render generates html without mounting the components to dom.
 func (u *UI) Render() (string, error) {
 	_, err := u.Root.RenderTo(abys{}, u.Ctx)
 	if err != nil {
 		return "", err
 	}
 	return u.Root.HTML.String(), nil
+}
+
+// Init initializes goroutine for rerendering.
+func (u *UI) Init() {
+	if u.initialized {
+		return
+	}
+	go func() {
+		for {
+			select {
+			case c := <-u.changedContainers:
+				go c.Rerender(u.Ctx)
+			}
+		}
+	}()
+	u.initialized = true
 }
