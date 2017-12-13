@@ -258,5 +258,10 @@ func (c *Container) Mount(ctx *component.Context) error {
 	e.SetInnerHTML(c.HTML.String())
 	ctx.RootElement.AppendChild(e)
 	ctx.Element = e
+	if c.Component != nil {
+		if m, ok := c.Component.(component.DidMount); ok {
+			m.ComponentDidMount(ctx)
+		}
+	}
 	return nil
 }

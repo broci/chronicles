@@ -20,6 +20,10 @@ type CanListen interface {
 	ListenTo() EventListers
 }
 
+type DidMount interface {
+	ComponentDidMount(*Context)
+}
+
 type Identity interface {
 	ID() string
 }
