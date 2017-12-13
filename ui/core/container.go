@@ -8,6 +8,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/broci/chronicles/ui/state"
+
 	"honnef.co/go/js/dom"
 
 	"github.com/albrow/vdom"
@@ -95,6 +97,8 @@ type Container struct {
 	Element   dom.Element
 	Component component.Component
 	Children  []*Container
+
+	State *state.State
 }
 
 // List is a group of containers.
