@@ -5,7 +5,7 @@ import "honnef.co/go/js/dom"
 
 type Component interface {
 	Template() string
-	Init() Component
+	Init(*Context) Component
 }
 
 type HasProps interface {

@@ -12,6 +12,6 @@ func (t *Text) Template() string {
 	return t.Text
 }
 
-func (t *Text) Init() component.Component {
+func (t *Text) Init(*component.Context) component.Component {
 	return t
 }

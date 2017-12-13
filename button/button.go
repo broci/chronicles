@@ -2,6 +2,7 @@ package button
 
 import (
 	"github.com/broci/chronicles/ui/component"
+	"github.com/broci/chronicles/util"
 	"github.com/broci/goss"
 	css "github.com/broci/goss"
 	"honnef.co/go/js/dom"
@@ -80,7 +81,7 @@ type Base struct {
 }
 
 func (b *Base) Template() string {
-	return `{{open .type}}{{- .children -}} {{close .type}}`
+	return `{{open .type .class}}{{- .children -}} {{close .type}}`
 }
 
 func (b *Base) Props() component.Props {
@@ -95,6 +96,9 @@ func (b *Base) Props() component.Props {
 	return component.Props{
 		"type":     typ,
 		"children": children,
+		"class": util.Class(
+			b.Style.Class["root"],
+		),
 	}
 }
 
@@ -103,7 +107,15 @@ func (b *Base) ComponentDidMount(ctx *component.Context) error {
 	return nil
 }
 
-func (b *Base) Init() component.Component {
+func (b *Base) Init(ctx *component.Context) component.Component {
 	c := *b
+	if ctx.StyleSheet != nil {
+		s := ctx.StyleSheet.NewSheet()
+		err := s.Parse(Style())
+		if err != nil {
+			panic(err)
+		}
+		c.Style = s
+	}
 	return &c
 }

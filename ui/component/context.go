@@ -18,7 +18,8 @@ type Context struct {
 
 func NewCtx() *Context {
 	return &Context{
-		State:    state.New(),
-		Registry: NewRegistry(),
+		State:      state.New(),
+		Registry:   NewRegistry(),
+		StyleSheet: &goss.StyleSheet{},
 	}
 }

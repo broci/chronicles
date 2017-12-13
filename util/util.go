@@ -1,7 +1,10 @@
 package util
 
 import (
+	"fmt"
 	"strconv"
+
+	"github.com/broci/classnames"
 )
 
 func FormatInt(v int) string {
@@ -14,4 +17,12 @@ func FormatInt64(v int64) string {
 
 func FormatFloat(f float64) string {
 	return strconv.FormatFloat(f, 'f', 2, 64)
+}
+
+func Class(n ...interface{}) string {
+	v := classnames.Join(n...)
+	if v != "" {
+		return fmt.Sprintf(`class="%s"`, v)
+	}
+	return ""
 }

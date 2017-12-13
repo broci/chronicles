@@ -172,11 +172,10 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 	case Text, Comment:
 		return c.HTML.WriteTo(out)
 	case Element, Component:
-		cpt := ctx.Registry.Get(c.Name)
-		if cpt == nil {
-			return 0, fmt.Errorf("Unknownn component %s", c.Name)
+		var tplStr string
+		if c.Kind == Element {
+			tplStr = string(c.Node.HTML())
 		}
-		tplStr := cpt.Template()
 		var needs []string
 		props := make(component.Props)
 		if c.Parent != nil {
@@ -185,22 +184,23 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 			}
 		}
 		if c.Kind == Component {
-			if cmp := ctx.Registry.Get(c.Name); cmp != nil {
-				tplStr = cmp.Template()
-
-				if cp, ok := cmp.(component.HasProps); ok {
-					for k, v := range cp.Props() {
-						props[k] = v
-					}
+			cmp := ctx.Registry.Get(c.Name)
+			if cmp == nil {
+				return 0, fmt.Errorf("Unknownn component %s", c.Name)
+			}
+			cmp = cmp.Init(ctx)
+			tplStr = cmp.Template()
+			if cp, ok := cmp.(component.HasProps); ok {
+				for k, v := range cp.Props() {
+					props[k] = v
 				}
-				if cp, ok := cmp.(component.NeedsProps); ok {
-					for _, v := range cp.NeedsProps() {
-						needs = append(needs, v)
-					}
+			}
+			if cp, ok := cmp.(component.NeedsProps); ok {
+				for _, v := range cp.NeedsProps() {
+					needs = append(needs, v)
 				}
 			}
 		}
-
 		var buf bytes.Buffer
 		for _, child := range c.Children {
 			buf.Reset()
