@@ -221,7 +221,9 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 			}
 		}
 		props["parent"] = c.Props
-		props["classes"] = c.Sheet.Class
+		if c.Sheet != nil {
+			props["classes"] = c.Sheet.Class
+		}
 		tpl, err := template.New("component").Funcs(funcs.New()).Parse(tplStr)
 		if err != nil {
 			return 0, err
@@ -243,5 +245,13 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 }
 
 func (c *Container) Mount(ctx *component.Context) error {
+	if c.Element != nil {
+		c.Element.SetInnerHTML(c.HTML.String())
+		return nil
+	}
+	e := ctx.Document.CreateElement(c.Name)
+	e.SetInnerHTML(c.HTML.String())
+	ctx.RootElement.AppendChild(e)
+	ctx.Element = e
 	return nil
 }

@@ -10,6 +10,7 @@ func main() {
 	doc := dom.GetWindow().Document()
 	ctx := component.NewCtx()
 	ctx.Document = doc
+	ctx.RootElement = doc.GetElementByID("app")
 	u, err := ui.New(`<h1> hello, world </h1>`, ctx)
 	if err != nil {
 		panic(err)
