@@ -254,6 +254,11 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 				props[v] = npp
 			}
 		}
+		if c.Component != nil {
+			if cp, ok := c.Component.(component.WillRecieveProps); ok {
+				cp.ComponentWillReceiveProps(props)
+			}
+		}
 		props = component.MergeProps(props, c.Props)
 		if c.Sheet != nil {
 			props["classes"] = c.Sheet.Class

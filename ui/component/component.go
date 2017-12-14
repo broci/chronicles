@@ -29,6 +29,10 @@ type HasStyle interface {
 	ComponentStyle() goss.CSS
 }
 
+type WillRecieveProps interface {
+	ComponentWillReceiveProps(props Props)
+}
+
 type Identity interface {
 	ID() string
 }
