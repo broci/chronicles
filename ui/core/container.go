@@ -219,6 +219,16 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 					needs = append(needs, v)
 				}
 			}
+			if cp, ok := cmp.(component.HasStyle); ok {
+				if ctx.StyleSheet != nil {
+					shit := ctx.StyleSheet.NewSheet()
+					err := shit.Parse(cp.ComponentStyle())
+					if err != nil {
+						return 0, err
+					}
+					c.Sheet = shit
+				}
+			}
 		}
 		var buf bytes.Buffer
 		for _, child := range c.Children {

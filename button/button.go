@@ -2,7 +2,6 @@ package button
 
 import (
 	"github.com/gernest/chronicles/ui/component"
-	"github.com/gernest/chronicles/util"
 	"github.com/gernest/goss"
 	css "github.com/gernest/goss"
 	"honnef.co/go/js/dom"
@@ -64,7 +63,7 @@ type Base struct {
 	FocusRipple              bool
 	KeyboardFocusedClassName string
 	Node                     dom.Element
-	Style                    *goss.Sheet
+	Style                    goss.CSS
 	TabIndex                 int
 
 	//events handlers
@@ -84,7 +83,7 @@ type Base struct {
 }
 
 func (b *Base) Template() string {
-	return `{{open .type .class}}{{- .children -}} {{close .type}}`
+	return `{{cname .classes.root| attr "class" |open .type }}{{- .children -}}{{close .type}}`
 }
 
 func (b *Base) Props() component.Props {
@@ -99,9 +98,6 @@ func (b *Base) Props() component.Props {
 	return component.Props{
 		"type":     typ,
 		"children": children,
-		"class": util.Class(
-			b.Style.Class["root"],
-		),
 	}
 }
 
@@ -112,13 +108,15 @@ func (b *Base) ComponentDidMount(ctx *component.Context) error {
 
 func (b *Base) Init(ctx *component.Context) component.Component {
 	c := *b
-	if ctx.StyleSheet != nil {
-		s := ctx.StyleSheet.NewSheet()
-		err := s.Parse(Style())
-		if err != nil {
-			panic(err)
-		}
-		c.Style = s
-	}
 	return &c
+}
+
+func (b *Base) ComponentStyle() goss.CSS {
+	s := Style()
+	if b.Style != nil {
+		for k, v := range b.Style {
+			s[k] = v
+		}
+	}
+	return s
 }

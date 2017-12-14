@@ -2,6 +2,7 @@ package component
 
 import "strings"
 import "honnef.co/go/js/dom"
+import "github.com/gernest/goss"
 
 type Component interface {
 	Template() string
@@ -22,6 +23,10 @@ type CanListen interface {
 
 type DidMount interface {
 	ComponentDidMount(*Context)
+}
+
+type HasStyle interface {
+	ComponentStyle() goss.CSS
 }
 
 type Identity interface {

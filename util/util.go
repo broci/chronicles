@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/broci/classnames"
+	"github.com/gernest/classnames"
 )
 
 func FormatInt(v int) string {
