@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/broci/chronicles/ui"
-	"github.com/broci/chronicles/ui/component"
+	"github.com/gernest/chronicles/ui"
+	"github.com/gernest/chronicles/ui/component"
 	"honnef.co/go/js/dom"
 )
 

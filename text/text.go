@@ -1,7 +1,7 @@
 package text
 
 import (
-	"github.com/broci/chronicles/ui/component"
+	"github.com/gernest/chronicles/ui/component"
 )
 
 type Text struct {

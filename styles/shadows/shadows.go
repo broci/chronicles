@@ -1,7 +1,7 @@
 package shadows
 
 import (
-	"github.com/broci/chronicles/styles/unit"
+	"github.com/gernest/chronicles/styles/unit"
 )
 
 const shadowKeyUmbraOpacity = "0.2"

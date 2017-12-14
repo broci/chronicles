@@ -3,8 +3,8 @@ package typography
 import (
 	"strconv"
 
-	"github.com/broci/chronicles/styles/palette"
-	"github.com/broci/chronicles/styles/unit"
+	"github.com/gernest/chronicles/styles/palette"
+	"github.com/gernest/chronicles/styles/unit"
 )
 
 type TextStyle uint32

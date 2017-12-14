@@ -1,10 +1,10 @@
 package button
 
 import (
-	"github.com/broci/chronicles/ui/component"
-	"github.com/broci/chronicles/util"
-	"github.com/broci/goss"
-	css "github.com/broci/goss"
+	"github.com/gernest/chronicles/ui/component"
+	"github.com/gernest/chronicles/util"
+	"github.com/gernest/goss"
+	css "github.com/gernest/goss"
 	"honnef.co/go/js/dom"
 )
 

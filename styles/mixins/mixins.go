@@ -1,10 +1,10 @@
 package mixins
 
 import (
-	"github.com/broci/chronicles/styles/breakpoint"
-	"github.com/broci/chronicles/styles/spacing"
-	"github.com/broci/chronicles/styles/unit"
-	"github.com/broci/goss"
+	"github.com/gernest/chronicles/styles/breakpoint"
+	"github.com/gernest/chronicles/styles/spacing"
+	"github.com/gernest/chronicles/styles/unit"
+	"github.com/gernest/goss"
 )
 
 type Mixins struct {

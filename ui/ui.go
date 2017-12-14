@@ -3,8 +3,8 @@ package ui
 import (
 	"errors"
 
-	"github.com/broci/chronicles/ui/component"
-	"github.com/broci/chronicles/ui/core"
+	"github.com/gernest/chronicles/ui/component"
+	"github.com/gernest/chronicles/ui/core"
 )
 
 type abys struct{}

@@ -1,15 +1,15 @@
 package theme
 
 import (
-	"github.com/broci/chronicles/colors"
-	"github.com/broci/chronicles/styles/breakpoint"
-	"github.com/broci/chronicles/styles/mixins"
-	"github.com/broci/chronicles/styles/palette"
-	"github.com/broci/chronicles/styles/shadows"
-	"github.com/broci/chronicles/styles/spacing"
-	"github.com/broci/chronicles/styles/transition"
-	"github.com/broci/chronicles/styles/typography"
-	"github.com/broci/chronicles/styles/zindex"
+	"github.com/gernest/chronicles/colors"
+	"github.com/gernest/chronicles/styles/breakpoint"
+	"github.com/gernest/chronicles/styles/mixins"
+	"github.com/gernest/chronicles/styles/palette"
+	"github.com/gernest/chronicles/styles/shadows"
+	"github.com/gernest/chronicles/styles/spacing"
+	"github.com/gernest/chronicles/styles/transition"
+	"github.com/gernest/chronicles/styles/typography"
+	"github.com/gernest/chronicles/styles/zindex"
 )
 
 type Theme struct {

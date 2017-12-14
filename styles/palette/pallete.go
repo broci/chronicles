@@ -1,6 +1,6 @@
 package palette
 
-import "github.com/broci/chronicles/colors"
+import "github.com/gernest/chronicles/colors"
 
 type ShadeText struct {
 	Primary      string

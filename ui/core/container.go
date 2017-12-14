@@ -8,15 +8,15 @@ import (
 	"io"
 	"strings"
 
-	"github.com/broci/chronicles/ui/state"
+	"github.com/gernest/chronicles/ui/state"
 
 	"honnef.co/go/js/dom"
 
 	"github.com/albrow/vdom"
-	"github.com/broci/chronicles/id"
-	"github.com/broci/chronicles/ui/component"
-	"github.com/broci/chronicles/ui/funcs"
-	"github.com/broci/goss"
+	"github.com/gernest/chronicles/id"
+	"github.com/gernest/chronicles/ui/component"
+	"github.com/gernest/chronicles/ui/funcs"
+	"github.com/gernest/goss"
 )
 
 // ErrUnkownNode is raised for unsupported node types.

@@ -3,9 +3,9 @@ package typography
 import (
 	"testing"
 
-	"github.com/broci/chronicles/styles/unit"
+	"github.com/gernest/chronicles/styles/unit"
 
-	"github.com/broci/chronicles/styles/palette"
+	"github.com/gernest/chronicles/styles/palette"
 )
 
 func TestTypography(t *testing.T) {

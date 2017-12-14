@@ -3,7 +3,7 @@ package unit
 import (
 	"unicode/utf8"
 
-	"github.com/broci/chronicles/util"
+	"github.com/gernest/chronicles/util"
 )
 
 type Unit interface{}

@@ -1,8 +1,8 @@
 package component
 
 import (
-	"github.com/broci/chronicles/ui/state"
-	"github.com/broci/goss"
+	"github.com/gernest/chronicles/ui/state"
+	"github.com/gernest/goss"
 	"honnef.co/go/js/dom"
 )
 

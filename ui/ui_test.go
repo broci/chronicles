@@ -3,7 +3,7 @@ package ui
 import (
 	"testing"
 
-	"github.com/broci/chronicles/ui/component"
+	"github.com/gernest/chronicles/ui/component"
 )
 
 type dummy struct {

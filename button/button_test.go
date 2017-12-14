@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/broci/chronicles/text"
-	"github.com/broci/chronicles/ui"
-	"github.com/broci/chronicles/ui/component"
+	"github.com/gernest/chronicles/text"
+	"github.com/gernest/chronicles/ui"
+	"github.com/gernest/chronicles/ui/component"
 )
 
 func TestBase(t *testing.T) {
