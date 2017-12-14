@@ -25,14 +25,16 @@ func Style() css.CSS {
 			css.MinWidth:     88,
 			css.MinHeight:    36,
 			css.BorderRadius: 2,
-			"&:hover": css.CSS{
+			"{{.root}}:hover": css.CSS{
 				css.TextDecoration: "none",
-				"@media (hover: none)": css.CSS{
+				"{{.root}} {{.disabled}}": css.CSS{
 					css.Background: "transparent",
 				},
-				"&$disabled": css.CSS{
-					css.Background: "transparent",
-				},
+			},
+		},
+		"@media (hover: none)": css.CSS{
+			"{{.root}}:hover": css.CSS{
+				css.Background: "transparent",
 			},
 		},
 		"dense": css.CSS{
@@ -53,6 +55,7 @@ func Style() css.CSS {
 	}
 }
 
+// Base is the BaseButton component.
 type Base struct {
 	Children                 component.Component
 	Type                     string
