@@ -289,10 +289,17 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 	}
 }
 
+// Mount inserts the container element in the dom. Stylesheets are attached
+// before mounting.
 func (c *Container) Mount(ctx *component.Context) error {
 	if c.Element != nil {
 		c.Element.SetInnerHTML(c.HTML.String())
 		return nil
+	}
+
+	// attach the stylesheet
+	if ctx.StyleSheet != nil && c.Sheet != nil {
+		ctx.StyleSheet.Attach(c.Sheet, ctx.Document)
 	}
 	e := ctx.Document.CreateElement(c.Name)
 	e.SetInnerHTML(c.HTML.String())
