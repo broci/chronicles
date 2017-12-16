@@ -1,32 +1,33 @@
-@media (hover: none){:hover{
+@media (hover: none){
+    root-id:hover{
       background: transparent;
-}
+    }
 }
 color-inherit-id{
-      color: inherit;
+  color: inherit;
 }
 dense-id{
-      min-height: 32;
-      min-width: 64;
+  min-height: 32;
+  min-width: 64;
 }
 label-id{
-      align-items: inherit;
-      display: inherit;
-      justify-content: inherit;
-      width: 100%;
+  align-items: inherit;
+  display: inherit;
+  justify-content: inherit;
+  width: 100%;
 }
 root-id{
-      border-radius: 2;
-      box-sizing: border-box;
-      color: rgba(0, 0, 0, 0.87);
-      line-height: 1.4em;
-      min-height: 36;
-      min-width: 88;
-      padding: 8px 16px;
+  border-radius: 2;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 1.4em;
+  min-height: 36;
+  min-width: 88;
+  padding: 8px 16px;
 }
 root-id {
-      background: transparent;
+  background: transparent;
 }
 root-id:hover{
-      text-decoration: none;
+  text-decoration: none;
 }
