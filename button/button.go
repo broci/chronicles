@@ -9,7 +9,6 @@ import (
 	"github.com/gernest/chronicles/styles/theme"
 	"github.com/gernest/chronicles/ui/component"
 
-	"github.com/gernest/goss"
 	css "github.com/gernest/goss"
 	"honnef.co/go/js/dom"
 )
@@ -87,7 +86,7 @@ type Base struct {
 	FocusRipple              bool
 	KeyboardFocusedClassName string
 	Node                     dom.Element
-	Style                    goss.CSS
+	Style                    css.CSS
 	TabIndex                 int
 
 	//events handlers
@@ -130,6 +129,6 @@ func (b *Base) Init(ctx *component.Context) component.Component {
 	return &c
 }
 
-func (b *Base) ComponentStyle(t theme.Theme) goss.CSS {
+func (b *Base) ComponentStyle(t theme.Theme) css.CSS {
 	return Style(t)
 }
