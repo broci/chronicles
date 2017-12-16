@@ -9,7 +9,6 @@ import (
 
 	"github.com/gernest/chronicles/ui/funcs"
 
-	"github.com/gernest/chronicles/text"
 	"github.com/gernest/chronicles/ui"
 	"github.com/gernest/chronicles/ui/component"
 	"github.com/gernest/goss"
@@ -35,10 +34,8 @@ func TestBase(t *testing.T) {
 func TestBase_Children(t *testing.T) {
 	ctx := component.NewCtx()
 	ctx.StyleSheet.Namer = goss.IDNamer
-	ctx.Registry.Register("BaseButton", &Base{
-		Children: &text.Text{Text: "sign up"},
-	})
-	u, err := ui.New(`<BaseButton/>`, ctx)
+	ctx.Registry.Register("BaseButton", &Base{})
+	u, err := ui.New(`<BaseButton>sign up</BaseButton>`, ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

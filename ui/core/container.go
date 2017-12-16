@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"strings"
 
 	"github.com/gernest/chronicles/styles/theme"
 	"github.com/gernest/chronicles/ui/state"
@@ -238,15 +237,14 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 				}
 			}
 		}
-		var buf bytes.Buffer
+		var children bytes.Buffer
 		for _, child := range c.Children {
-			buf.Reset()
-			_, err := child.RenderTo(&buf, ctx)
+			_, err := child.RenderTo(&children, ctx)
 			if err != nil {
 				return 0, err
 			}
-			tplStr = strings.Replace(tplStr, string(child.Node.HTML()), buf.String(), 1)
 		}
+		props["children"] = template.HTML(children.String())
 		if c.Parent != nil {
 			for k, p := range c.Parent.Props {
 				props[k] = p

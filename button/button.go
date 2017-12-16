@@ -58,7 +58,6 @@ func Style() css.CSS {
 
 // Base is the BaseButton component.
 type Base struct {
-	Children                 component.Component
 	Type                     string
 	CenterRipple             bool
 	DisableRipple            bool
@@ -85,7 +84,7 @@ type Base struct {
 }
 
 func (b *Base) Template() string {
-	return `{{cname .classes.root| attr "class" |open .type }}{{- .children -}}{{close .type}}`
+	return `{{cname .classes.root| attr "class" |open .type }}{{.children}}{{close .type}}`
 }
 
 func (b *Base) Props() component.Props {
@@ -93,13 +92,8 @@ func (b *Base) Props() component.Props {
 	if typ == "" {
 		typ = "button"
 	}
-	children := ""
-	if b.Children != nil {
-		children = b.Children.Template()
-	}
 	return component.Props{
-		"type":     typ,
-		"children": children,
+		"type": typ,
 	}
 }
 
