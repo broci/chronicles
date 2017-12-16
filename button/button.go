@@ -25,6 +25,7 @@ func Style() css.CSS {
 			css.MinHeight:    36,
 			css.BorderRadius: 2,
 			css.Padding:      `{{.theme.Spacing.Unit}}px {{multi .theme.Spacing.Unit  2}}px`,
+			css.Color:        `{{ .theme.Palette.Text.Primary}}`,
 			"{{.root}}:hover": css.CSS{
 				css.TextDecoration: "none",
 				"{{.root}} {{.disabled}}": css.CSS{
