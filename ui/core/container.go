@@ -227,7 +227,7 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 					shit := ctx.StyleSheet.NewSheet()
 					opts := goss.NewOpts()
 					opts.FuncMap = funcs.New()
-					err := shit.Parse(cp.ComponentStyle(), opts, map[string]interface{}{
+					err := shit.Parse(cp.ComponentStyle(c.Theme), opts, map[string]interface{}{
 						"theme": c.Theme,
 					})
 					if err != nil {

@@ -58,7 +58,7 @@ func TestStyle(t *testing.T) {
 	opts.FuncMap = funcs.New()
 	tm := theme.New(colors.LightContrast)
 
-	err := s.Parse(Style(), opts, map[string]interface{}{
+	err := s.Parse(Style(tm), opts, map[string]interface{}{
 		"theme": tm,
 	})
 	if err != nil {

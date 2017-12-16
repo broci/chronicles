@@ -1,8 +1,12 @@
 package component
 
-import "strings"
-import "honnef.co/go/js/dom"
-import "github.com/gernest/goss"
+import (
+	"strings"
+
+	"github.com/gernest/chronicles/styles/theme"
+	"github.com/gernest/goss"
+	"honnef.co/go/js/dom"
+)
 
 type Component interface {
 	Template() string
@@ -26,7 +30,7 @@ type DidMount interface {
 }
 
 type HasStyle interface {
-	ComponentStyle() goss.CSS
+	ComponentStyle(theme.Theme) goss.CSS
 }
 
 type WillRecieveProps interface {

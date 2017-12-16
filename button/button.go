@@ -1,7 +1,13 @@
 package button
 
 import (
+	"fmt"
+
+	"github.com/gernest/chronicles/styles/transition"
+
+	"github.com/gernest/chronicles/styles/theme"
 	"github.com/gernest/chronicles/ui/component"
+
 	"github.com/gernest/goss"
 	css "github.com/gernest/goss"
 	"honnef.co/go/js/dom"
@@ -16,7 +22,13 @@ const (
 )
 
 // Style returns button specific css styles
-func Style() css.CSS {
+func Style(t theme.Theme) css.CSS {
+	pd := fmt.Sprintf("%dpx %dpx", t.Spacing.Unit, t.Spacing.Unit*2)
+	tr := t.Transitions.Create([]string{
+		css.BackgroundColor, css.BoxShadow,
+	}, transition.Options{
+		Duration: t.Transitions.Duration.Short,
+	})
 	return css.CSS{
 		"root": css.CSS{
 			css.LineHeight:   "1.4em",
@@ -24,8 +36,9 @@ func Style() css.CSS {
 			css.MinWidth:     88,
 			css.MinHeight:    36,
 			css.BorderRadius: 2,
-			css.Padding:      `{{.theme.Spacing.Unit}}px {{multi .theme.Spacing.Unit  2}}px`,
-			css.Color:        `{{ .theme.Palette.Text.Primary}}`,
+			css.Padding:      pd,
+			css.Color:        t.Palette.Text.Primary,
+			css.Transition:   tr,
 			"{{.root}}:hover": css.CSS{
 				css.TextDecoration: "none",
 				"{{.root}} {{.disabled}}": css.CSS{
@@ -107,12 +120,6 @@ func (b *Base) Init(ctx *component.Context) component.Component {
 	return &c
 }
 
-func (b *Base) ComponentStyle() goss.CSS {
-	s := Style()
-	if b.Style != nil {
-		for k, v := range b.Style {
-			s[k] = v
-		}
-	}
-	return s
+func (b *Base) ComponentStyle(t theme.Theme) goss.CSS {
+	return Style(t)
 }
