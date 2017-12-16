@@ -1,14 +1,25 @@
 @media (hover: none){
+    flatPrimary-id:hover{
+      background: transparent;
+    }
     root-id:hover{
       background: transparent;
     }
 }
-color-inherit-id{
+colorInherit-id{
   color: inherit;
 }
 dense-id{
+  font-size: 0rem;
   min-height: 32;
   min-width: 64;
+  padding: 7px 8px;
+}
+flatPrimary-id{
+  color: #3f51b5;
+}
+flatPrimary-id:hover{
+  background-color: #3f511f;
 }
 label-id{
   align-items: inherit;

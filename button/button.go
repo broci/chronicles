@@ -3,6 +3,7 @@ package button
 import (
 	"fmt"
 
+	"github.com/gernest/chronicles/colors"
 	"github.com/gernest/chronicles/styles/transition"
 
 	"github.com/gernest/chronicles/styles/theme"
@@ -15,15 +16,14 @@ import (
 
 // button specific classes
 const (
-	FlatPrimary  = "flat-primary"
-	FlatAccent   = "flat-accent"
-	FlatContrast = "flat-contrast"
-	ColorInherit = "color-inherit"
+	FlatPrimary  = "flatPrimary"
+	FlatAccent   = "flatAccent"
+	FlatContrast = "flatContrast"
+	ColorInherit = "colorInherit"
 )
 
 // Style returns button specific css styles
 func Style(t theme.Theme) css.CSS {
-	pd := fmt.Sprintf("%dpx %dpx", t.Spacing.Unit, t.Spacing.Unit*2)
 	tr := t.Transitions.Create([]string{
 		css.BackgroundColor, css.BoxShadow,
 	}, transition.Options{
@@ -36,7 +36,7 @@ func Style(t theme.Theme) css.CSS {
 			css.MinWidth:     88,
 			css.MinHeight:    36,
 			css.BorderRadius: 2,
-			css.Padding:      pd,
+			css.Padding:      fmt.Sprintf("%dpx %dpx", t.Spacing.Unit, t.Spacing.Unit*2),
 			css.Color:        t.Palette.Text.Primary,
 			css.Transition:   tr,
 			"{{.root}}:hover": css.CSS{
@@ -50,10 +50,15 @@ func Style(t theme.Theme) css.CSS {
 			"{{.root}}:hover": css.CSS{
 				css.Background: "transparent",
 			},
+			fmt.Sprintf("{{.%s}}:hover", FlatPrimary): css.CSS{
+				css.Background: "transparent",
+			},
 		},
 		"dense": css.CSS{
+			css.Padding:   fmt.Sprintf("%dpx %dpx", t.Spacing.Unit-1, t.Spacing.Unit),
 			css.MinWidth:  64,
 			css.MinHeight: 32,
+			css.FontSize:  t.Typography.PxToRem(t.Typography.FontSize.(int) - 1),
 		},
 		"label": css.CSS{
 			css.Width:          "100%",
@@ -61,8 +66,13 @@ func Style(t theme.Theme) css.CSS {
 			css.AlignItems:     "inherit",
 			css.JustifyContent: "inherit",
 		},
-		FlatPrimary: css.CSS{},
-		FlatAccent:  css.CSS{},
+		FlatPrimary: css.CSS{
+			css.Color: t.Palette.Primary[colors.C500],
+			fmt.Sprintf("{{.%s}}:hover", FlatPrimary): css.CSS{
+				css.BackgroundColor: colors.Fade(t.Palette.Primary[colors.C500], 0.12),
+			},
+		},
+		FlatAccent: css.CSS{},
 		ColorInherit: css.CSS{
 			"color": "inherit",
 		},

@@ -476,3 +476,11 @@ type CommonColors struct {
 	DarkWhite   string
 	LightWhite  string
 }
+
+func Fade(c string, v float64) string {
+	h, err := FromHex(c)
+	if err != nil {
+		panic(err)
+	}
+	return h.Fade(v).Hex()
+}
