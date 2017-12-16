@@ -20,5 +20,8 @@ func New() template.FuncMap {
 		"attr": func(key string, value string) string {
 			return fmt.Sprintf(`%s="%s"`, key, value)
 		},
+		"multi": func(a, b int) int {
+			return a * b
+		},
 	}
 }

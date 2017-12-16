@@ -8,6 +8,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/gernest/chronicles/styles/theme"
 	"github.com/gernest/chronicles/ui/state"
 
 	"honnef.co/go/js/dom"
@@ -93,6 +94,8 @@ type Container struct {
 	// rendering.
 	Sheet *goss.Sheet
 
+	Theme theme.Theme
+
 	// Element is the actual dom element that is atached to this container.
 	Element   dom.Element
 	Component component.Component
@@ -111,14 +114,14 @@ type List struct {
 }
 
 // Parse takes src as HTML and returns the container list.
-func Parse(src []byte) (*List, error) {
+func Parse(src []byte, tm theme.Theme) (*List, error) {
 	t, err := vdom.Parse(src)
 	if err != nil {
 		return nil, err
 	}
 	l := &List{Tree: t}
 	for _, e := range t.Children {
-		c, err := ContainerFromNode(e)
+		c, err := ContainerFromNode(e, tm)
 		if err != nil {
 			return nil, err
 		}
@@ -128,10 +131,11 @@ func Parse(src []byte) (*List, error) {
 }
 
 // ContainerFromNode creates a container out of the node e.
-func ContainerFromNode(e vdom.Node) (*Container, error) {
+func ContainerFromNode(e vdom.Node, t theme.Theme) (*Container, error) {
 	c := &Container{
-		Node: e,
-		ID:   id.Next(),
+		Node:  e,
+		ID:    id.Next(),
+		Theme: t,
 	}
 	switch v := e.(type) {
 	case *vdom.Element:
@@ -150,7 +154,7 @@ func ContainerFromNode(e vdom.Node) (*Container, error) {
 		c.Needs = needs
 		c.Name = v.Name
 		for _, child := range v.Children() {
-			ch, err := ContainerFromNode(child)
+			ch, err := ContainerFromNode(child, t)
 			if err != nil {
 				return nil, err
 			}
@@ -222,7 +226,11 @@ func (c *Container) RenderTo(out io.Writer, ctx *component.Context) (int64, erro
 			if cp, ok := cmp.(component.HasStyle); ok {
 				if ctx.StyleSheet != nil {
 					shit := ctx.StyleSheet.NewSheet()
-					err := shit.Parse(cp.ComponentStyle())
+					opts := goss.NewOpts()
+					opts.FuncMap = funcs.New()
+					err := shit.Parse(cp.ComponentStyle(), opts, map[string]interface{}{
+						"theme": c.Theme,
+					})
 					if err != nil {
 						return 0, err
 					}

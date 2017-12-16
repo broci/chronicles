@@ -3,6 +3,8 @@ package ui
 import (
 	"errors"
 
+	"github.com/gernest/chronicles/colors"
+	"github.com/gernest/chronicles/styles/theme"
 	"github.com/gernest/chronicles/ui/component"
 	"github.com/gernest/chronicles/ui/core"
 )
@@ -30,11 +32,16 @@ type UI struct {
 //	component.Component
 //	[]bute
 //	string
-func New(src interface{}, ctx *component.Context) (*UI, error) {
+func New(src interface{}, ctx *component.Context, themeColor ...colors.Contrast) (*UI, error) {
 	u := &UI{
 		Ctx:               ctx,
 		changedContainers: make(chan *core.Container, 1000),
 	}
+	c := colors.LightContrast
+	if len(themeColor) > 0 {
+		c = themeColor[0]
+	}
+	t := theme.New(c)
 	switch v := src.(type) {
 	case *core.Container:
 		u.Root = v
@@ -46,7 +53,7 @@ func New(src interface{}, ctx *component.Context) (*UI, error) {
 		}
 		return u, nil
 	case []byte:
-		l, err := core.Parse(v)
+		l, err := core.Parse(v, t)
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +63,7 @@ func New(src interface{}, ctx *component.Context) (*UI, error) {
 		u.Root = l.Childrens[0]
 		return u, nil
 	case string:
-		l, err := core.Parse([]byte(v))
+		l, err := core.Parse([]byte(v), t)
 		if err != nil {
 			return nil, err
 		}
