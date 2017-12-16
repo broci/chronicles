@@ -1,7 +1,13 @@
 package button
 
 import (
+	"io/ioutil"
 	"testing"
+
+	"github.com/gernest/chronicles/colors"
+	"github.com/gernest/chronicles/styles/theme"
+
+	"github.com/gernest/chronicles/ui/funcs"
 
 	"github.com/gernest/chronicles/text"
 	"github.com/gernest/chronicles/ui"
@@ -44,4 +50,31 @@ func TestBase_Children(t *testing.T) {
 	if v != e {
 		t.Errorf("expected %s got %s", e, v)
 	}
+}
+
+func TestStyle(t *testing.T) {
+	s := goss.Sheet{
+		Class:     make(goss.ClassMap),
+		ClassFunc: goss.IDNamer,
+	}
+	opts := goss.NewOpts()
+	opts.FuncMap = funcs.New()
+	tm := theme.New(colors.LightContrast)
+
+	err := s.Parse(Style(), opts, map[string]interface{}{
+		"theme": tm,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := ioutil.ReadFile("style.css")
+	if err != nil {
+		t.Fatal(err)
+	}
+	e := string(b)
+	g := s.Src.String()
+	if g != e {
+		t.Errorf("expected %s got %s", e, g)
+	}
+	// ioutil.WriteFile("style.css", s.Src.Bytes(), 0600)
 }
