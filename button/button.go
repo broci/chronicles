@@ -28,6 +28,8 @@ func Style(t theme.Theme) css.CSS {
 	}, transition.Options{
 		Duration: t.Transitions.Duration.Short,
 	})
+	contrastText := t.Palette.GetContrastText(t.Palette.Primary[colors.C500])
+	raised := t.Palette.GetContrastText(t.Palette.Grey[colors.C300])
 	return css.CSS{
 		"root": css.CSS{
 			css.LineHeight:   "1.4em",
@@ -52,6 +54,12 @@ func Style(t theme.Theme) css.CSS {
 			fmt.Sprintf("{{.%s}}:hover", FlatPrimary): css.CSS{
 				css.Background: "transparent",
 			},
+			fmt.Sprintf("{{.%s}}:hover", FlatAccent): css.CSS{
+				css.Background: "transparent",
+			},
+			fmt.Sprintf("{{.%s}}:hover", FlatContrast): css.CSS{
+				css.Background: "transparent",
+			},
 		},
 		"dense": css.CSS{
 			css.Padding:   fmt.Sprintf("%dpx %dpx", t.Spacing.Unit-1, t.Spacing.Unit),
@@ -71,10 +79,32 @@ func Style(t theme.Theme) css.CSS {
 				css.BackgroundColor: colors.Fade(t.Palette.Primary[colors.C500], 0.12),
 			},
 		},
-		FlatAccent: css.CSS{},
+		FlatAccent: css.CSS{
+			css.Color: t.Palette.Secondary[colors.A200],
+			fmt.Sprintf("{{.%s}}:hover", FlatAccent): css.CSS{
+				css.BackgroundColor: colors.Fade(t.Palette.Secondary[colors.A200], 0.12),
+			},
+		},
+		FlatContrast: css.CSS{
+			css.Color: contrastText,
+			fmt.Sprintf("{{.%s}}:hover", FlatAccent): css.CSS{
+				css.BackgroundColor: colors.Fade(contrastText, 0.12),
+			},
+		},
 		ColorInherit: css.CSS{
 			"color": "inherit",
 		},
+		"raised": css.CSS{
+			css.Color: raised,
+			css.BackgroundColor: t.Palette.Grey[colors.C300],
+			css.BoxShadow: t.Shadows[2],
+			"{{.raised}}{{.keyboardFocused}}": css.CSS{
+				css.BoxShadow: t.Shadows[6],
+			},
+			"{{.raised}}:active": css.CSS{
+				css.BoxShadow: t.Shadows[8],
+			},
+		}
 	}
 }
 
@@ -132,3 +162,5 @@ func (b *Base) Init(ctx *component.Context) component.Component {
 func (b *Base) ComponentStyle(t theme.Theme) css.CSS {
 	return Style(t)
 }
+
+

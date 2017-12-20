@@ -29,6 +29,10 @@ type DidMount interface {
 	ComponentDidMount(*Context)
 }
 
+type WillMount interface {
+	ComponentWillMount(*Context)
+}
+
 type HasStyle interface {
 	ComponentStyle(theme.Theme) goss.CSS
 }
@@ -73,4 +77,14 @@ func MergeProps(props ...Props) Props {
 		}
 	}
 	return p
+}
+
+// Bool finds prop with key, and casts the result to bool. This will return
+// false when the key is not set.
+func (p Props) Bool(key string) bool {
+	v, ok := p[key]
+	if !ok {
+		return false
+	}
+	return v.(bool)
 }

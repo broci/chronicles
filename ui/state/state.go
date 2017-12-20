@@ -80,3 +80,13 @@ func (s *State) Listen(key interface{}, f Listerner) {
 func (s *State) SetGlobal(l Listerner) {
 	s.global = l
 }
+
+// Bool returns a state value stored as boolean. Be warned if the value wasn't a
+// boolean then it will panic.
+func (s *State) Bool(key interface{}) bool {
+	v, ok := s.GetOk(key)
+	if !ok {
+		return false
+	}
+	return v.(bool)
+}

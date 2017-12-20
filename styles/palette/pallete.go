@@ -50,12 +50,10 @@ type Palette struct {
 		dark  Shade
 		light Shade
 	}
-	Text            ShadeText
-	Input           ShadeInput
-	Action          ShadeAction
-	Background      ShadeBackground
-	GetContrastText func(string) string
-	// TDDO add stepper line color
+	Text       ShadeText
+	Input      ShadeInput
+	Action     ShadeAction
+	Background ShadeBackground
 }
 
 var grey = colors.Grey()
@@ -151,4 +149,8 @@ func New(c colors.Contrast) Palette {
 		panic("unknown contrast value : " + c.Value())
 	}
 	return p
+}
+
+func (p Palette) GetContrastText(c string) string {
+
 }
