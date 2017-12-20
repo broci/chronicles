@@ -56,3 +56,23 @@ func TestSubStr(t *testing.T) {
 		}
 	}
 }
+
+func TestDecompose(t *testing.T) {
+	sample := []struct {
+		src string
+		e   string
+	}{
+		{"rgb(95,85,245)", "#5f55f5"},
+		{"#5f55f5", "#5f55f5"},
+	}
+
+	for _, v := range sample {
+		o, err := Decompose(v.src)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if o.Hex() != v.e {
+			t.Errorf("expected %s got %s", v.e, o.Hex())
+		}
+	}
+}

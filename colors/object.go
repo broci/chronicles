@@ -2,9 +2,13 @@ package colors
 
 import (
 	"bytes"
+	"errors"
 	"math"
 	"strconv"
+	"strings"
 )
+
+var factor = 1.0 / 255.0
 
 type Object struct {
 	R, G, B, A float64
@@ -12,7 +16,6 @@ type Object struct {
 }
 
 func FromHex(h string) (Object, error) {
-	factor := 1.0 / 255.0
 	if len(h) == 4 {
 		h = extend(h)
 	}
@@ -187,4 +190,67 @@ func (o Object) Emphasis(coe float64) Object {
 		return o.Darken(coe)
 	}
 	return o.Lighten(coe)
+}
+
+// Decompose parses c to color object.
+func Decompose(c string) (Object, error) {
+	if strings.HasPrefix(c, "#") {
+		return FromHex(c)
+	}
+	i := strings.Index(c, "(")
+	e := strings.Index(c, ")")
+	if i == -1 || e == -1 {
+		return Object{}, errors.New("not supported color")
+	}
+	typ := c[:i]
+	r := c[i+1 : e]
+	o := Object{}
+	p := strings.Split(r, ",")
+	switch typ {
+	case "rgb":
+		if len(p) != 3 {
+			return Object{}, errors.New("wrong rgb color")
+		}
+		rr, err := strconv.ParseFloat(p[0], 64)
+		if err != nil {
+			return Object{}, err
+		}
+		o.R = rr * 1.0 / 255.5
+		g, err := strconv.ParseFloat(p[1], 64)
+		if err != nil {
+			return Object{}, err
+		}
+		o.G = g * 1.0 / 255.5
+		b, err := strconv.ParseFloat(p[2], 64)
+		if err != nil {
+			return Object{}, err
+		}
+		o.B = b * 1.0 / 255.5
+	case "rgba":
+		if len(p) != 4 {
+			return Object{}, errors.New("wrong rgba color")
+		}
+		rr, err := strconv.ParseFloat(p[0], 64)
+		if err != nil {
+			return Object{}, err
+		}
+		o.R = rr * 1.0 / 255.5
+		g, err := strconv.ParseFloat(p[1], 64)
+		if err != nil {
+			return Object{}, err
+		}
+		o.G = g * 1.0 / 255.5
+		b, err := strconv.ParseFloat(p[2], 64)
+		if err != nil {
+			return Object{}, err
+		}
+		o.B = b * 1.0 / 255.5
+		a, err := strconv.ParseFloat(p[3], 64)
+		if err != nil {
+			return Object{}, err
+		}
+		o.A = a
+		o.IsRGBA = true
+	}
+	return o, nil
 }

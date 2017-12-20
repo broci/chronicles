@@ -152,5 +152,5 @@ func New(c colors.Contrast) Palette {
 }
 
 func (p Palette) GetContrastText(c string) string {
-
+	return ""
 }

@@ -39,4 +39,5 @@ func (b *Button) ComponentWillReceiveProps(next component.Props) {
 
 func (b *Button)ComponentDidMount(ctx *component.Context)  {
 	b.button=ctx.Element
+	util.ListenForFocusKeys(dom.GetWindow())
 }
