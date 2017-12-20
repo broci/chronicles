@@ -254,3 +254,19 @@ func Decompose(c string) (Object, error) {
 	}
 	return o, nil
 }
+
+// GetContrastRatio Calculates the contrast ratio between two colors.
+func GetContrastRatio(fg, bg string) int {
+	o1, err := Decompose(fg)
+	if err != nil {
+		panic(err)
+	}
+	o2, err := Decompose(bg)
+	if err != nil {
+		panic(err)
+	}
+	a := o1.Luminance()
+	b := o2.Luminance()
+	ratio := (math.Max(a, b) + 0.05) / (math.Min(a, b) + 0.05)
+	return int(math.Trunc(ratio))
+}

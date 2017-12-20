@@ -151,6 +151,10 @@ func New(c colors.Contrast) Palette {
 	return p
 }
 
-func (p Palette) GetContrastText(c string) string {
-	return ""
+// GetContrastText calculate contrast for text.
+func (p Palette) GetContrastText(hue string) string {
+	if colors.GetContrastRatio(hue, p.Common.Black) < 7 {
+		return p.Shades.dark.Text.Primary
+	}
+	return p.Shades.light.Text.Primary
 }
